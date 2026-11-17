@@ -95,6 +95,8 @@ button:focus-visible{outline:3px solid var(--brick);outline-offset:2px}
 #start .row{display:flex;flex-wrap:wrap;gap:10px}
 body:not(.start) #start{opacity:0;pointer-events:none}
 #load{font-size:13px;color:#C9D6E8;margin-top:14px;min-height:1.2em}
+#start p.credit{margin:14px 0 0;font-size:13px;line-height:1.4;max-width:none;color:#C9D6E8}
+#start .credit a{color:inherit}
 
 /* explore sheet */
 #sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);color:var(--ink);
@@ -182,6 +184,7 @@ input[type=range]{width:100%;accent-color:var(--plan);min-height:28px}
         <button class="tile go" id="bStart">Play the film</button>
         <button class="tile" id="bStartX">Explore the city</button>
       </div>
+      <p class="credit">The narration is an AI-generated voice, created with Boson AI's <a href="https://www.boson.ai/higgs-audio" target="_blank" rel="noopener">Higgs Audio</a> (Higgs TTS 3).</p>
       <div id="load"></div>
     </div>
   </section>
