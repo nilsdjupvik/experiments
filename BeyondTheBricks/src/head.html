@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beyond the Bricks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --surface:#F5F8FC;--ink:#14233B;--muted:#55657D;--line:#D5DEEA;--well:#E6EDF6;
+  --brick:#F2C230;--brick-ink:#2A2000;--signal:#D4281C;--assist:#0E9C86;--plan:#1F6FD0;
+  --font:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --surface:#14233B;--ink:#EEF3FA;--muted:#A9B8CE;--line:#2C4062;--well:#1D3152;--assist:#3FE0C4;--plan:#6DBBFF;}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --surface:#14233B;--ink:#EEF3FA;--muted:#A9B8CE;--line:#2C4062;--well:#1D3152;--assist:#3FE0C4;--plan:#6DBBFF;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+body{margin:0;height:100%;background:#9CCBF0;color:var(--ink);font-family:var(--font);overflow:hidden;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible{outline:3px solid var(--brick);outline-offset:2px}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#labels{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.lb{position:absolute;left:0;top:0;white-space:nowrap;font-size:13px;font-weight:600;line-height:1.2;
+  background:#fff;color:#14233B;padding:6px 10px;border-radius:12px 12px 12px 3px;
+  box-shadow:0 3px 0 rgba(20,35,59,.18);opacity:0;will-change:transform,opacity}
+.lb.pin{pointer-events:auto;border-radius:999px;padding:7px 12px;cursor:pointer}
+.lb.pin.on{background:var(--brick);color:var(--brick-ink)}
+#ui{position:fixed;inset:0;pointer-events:none;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) calc(env(safe-area-inset-right,0px) + 14px)
+          calc(env(safe-area-inset-bottom,0px) + 14px) calc(env(safe-area-inset-left,0px) + 14px)}
+#ui>*{pointer-events:auto}
+#scrim{position:fixed;inset:auto 0 0 0;height:46%;pointer-events:none;
+  background:linear-gradient(to top,rgba(12,24,46,.55),rgba(12,24,46,0));opacity:0;transition:opacity .6s}
+.film #scrim{opacity:1}
+
+/* top: scene bar built from studded plates */
+#top{position:relative;display:grid;grid-template-columns:1fr;gap:6px;max-width:920px;margin:0 auto;
+  transition:opacity .5s}
+#bar{display:flex;gap:4px;list-style:none;margin:0;padding:0}
+#bar li{min-width:0}
+#bar button{display:block;width:100%;height:16px;border-radius:4px;position:relative;overflow:hidden;
+  background:rgba(255,255,255,.42);box-shadow:inset 0 -2px 0 rgba(20,35,59,.22)}
+#bar i{position:absolute;inset:0 auto 0 0;width:0;background:var(--brick);box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+#bar button::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 46%,rgba(255,255,255,.55) 0 2.2px,rgba(20,35,59,.16) 2.3px 3.2px,transparent 3.3px) 0 0/12px 16px repeat-x}
+#meta{display:flex;justify-content:space-between;gap:12px;font-size:13px;font-weight:600;color:#fff;
+  text-shadow:0 1px 6px rgba(12,24,46,.7)}
+#meta span:last-child{font-weight:400;font-variant-numeric:tabular-nums}
+.explore #top,.start #top{opacity:0;pointer-events:none}
+
+/* captions */
+#chip{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 76px);transform:translateX(-50%);
+  width:max-content;max-width:min(92vw,640px);text-align:center;background:var(--surface);color:var(--ink);
+  padding:12px 20px 13px;border-radius:16px;font-size:clamp(19px,2.7vw,27px);font-weight:800;letter-spacing:-.012em;line-height:1.15;
+  box-shadow:0 5px 0 rgba(12,24,46,.28);opacity:0;pointer-events:none}
+#chip small{display:block;font-weight:400;letter-spacing:0;font-size:clamp(13.5px,1.5vw,16px);line-height:1.35;color:var(--muted);margin-top:4px}
+#dim{position:fixed;inset:0;background:#0C182E;opacity:0;pointer-events:none}
+#cap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(88vw,1000px);text-align:center;color:#fff;font-weight:800;
+  font-size:clamp(32px,7vw,76px);line-height:1.04;letter-spacing:-.025em;text-wrap:balance;
+  text-shadow:0 2px 0 rgba(12,24,46,.4),0 10px 40px rgba(12,24,46,.7);opacity:0;pointer-events:none}
+#narr{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 78px);transform:translateX(-50%);
+  width:min(88vw,620px);text-align:center;color:#fff;font-size:15px;line-height:1.4;
+  text-shadow:0 1px 8px rgba(12,24,46,.85);opacity:0;pointer-events:none;transition:opacity .5s}
+.narr.film #narr{opacity:.96}
+
+/* tile buttons */
+.tile{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;
+  border-radius:12px;background:var(--surface);color:var(--ink);font-weight:600;font-size:15px;
+  box-shadow:0 4px 0 rgba(12,24,46,.28);transition:transform .08s,box-shadow .08s}
+.tile:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(12,24,46,.28)}
+.tile.go{background:var(--brick);color:var(--brick-ink)}
+.tile[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.tile svg{width:18px;height:18px;fill:currentColor;flex:none}
+#ctl{position:absolute;right:calc(env(safe-area-inset-right,0px) + 14px);
+  bottom:calc(env(safe-area-inset-bottom,0px) + 14px);display:flex;gap:8px}
+#ctl .sq{padding:0;width:44px}
+.start #ctl,.explore #ctl{display:none}
+
+/* start card */
+#start{position:absolute;inset:0;display:flex;align-items:flex-end;
+  padding:calc(env(safe-area-inset-top,0px) + 24px) 22px calc(env(safe-area-inset-bottom,0px) + 34px);
+  background:linear-gradient(to top,rgba(12,24,46,.82),rgba(12,24,46,.25) 55%,rgba(12,24,46,0) 80%);
+  transition:opacity .7s}
+#start>div{max-width:620px;margin:0 auto;width:100%;color:#fff}
+#start h1{margin:0;font-weight:800;font-size:clamp(46px,12.5vw,104px);line-height:.9;letter-spacing:-.035em}
+#start p{margin:16px 0 22px;font-size:17px;line-height:1.45;max-width:34ch;color:#E8EEF7}
+#start .row{display:flex;flex-wrap:wrap;gap:10px}
+body:not(.start) #start{opacity:0;pointer-events:none}
+#load{font-size:13px;color:#C9D6E8;margin-top:14px;min-height:1.2em}
+
+/* explore sheet */
+#sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);color:var(--ink);
+  border-radius:18px 18px 0 0;box-shadow:0 -4px 0 rgba(12,24,46,.18);
+  padding:10px 16px calc(env(safe-area-inset-bottom,0px) + 14px);
+  transform:translateY(105%);transition:transform .45s cubic-bezier(.2,.8,.2,1);
+  display:flex;flex-direction:column;max-height:66vh}
+.explore #sheet{transform:none}
+#tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;flex:none}
+#tabs button{min-height:40px;border-radius:10px;background:var(--well);font-size:13.5px;font-weight:600;
+  box-shadow:inset 0 -2px 0 rgba(12,24,46,.12)}
+#tabs button[aria-selected="true"]{background:var(--brick);color:var(--brick-ink)}
+#body{overflow:auto;-webkit-overflow-scrolling:touch;padding-top:12px;min-height:0}
+#body h2{margin:0 0 4px;font-size:21px;font-weight:800;letter-spacing:-.015em;line-height:1.1}
+#body p{margin:0 0 10px;font-size:14.5px;line-height:1.45;color:var(--muted);max-width:60ch}
+#body p.say{color:var(--ink)}
+.opts{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.opts.scroll{display:grid;grid-template-columns:repeat(3,1fr)}
+.opts.scroll .opt{padding:0 4px;font-size:13.5px}
+.opt{flex:none;min-height:38px;padding:0 13px;border-radius:10px;background:var(--well);font-size:14px;font-weight:600;
+  box-shadow:inset 0 -2px 0 rgba(12,24,46,.12);white-space:nowrap}
+.opt[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:0 0 10px}
+.steps .opt{padding:0 1px;font-size:11.5px;letter-spacing:-.01em;min-width:0}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:14px;line-height:1.4}
+dt{color:var(--muted)}dd{margin:0}
+.sw{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:9px 12px;border-radius:12px;
+  background:var(--well);margin-bottom:6px;font-size:14.5px;font-weight:600;box-shadow:inset 0 -2px 0 rgba(12,24,46,.1)}
+.sw i{flex:none;width:36px;height:20px;border-radius:5px;background:var(--line);position:relative;transition:background .2s}
+.sw i::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--surface);
+  box-shadow:0 1px 0 rgba(0,0,0,.25);transition:transform .2s}
+.sw[aria-pressed="true"] i{background:var(--assist)}
+.sw[aria-pressed="true"] i::after{transform:translateX(16px)}
+.sw small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.meter{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:13.5px;margin:10px 0 4px;align-items:center}
+.meter b{font-variant-numeric:tabular-nums}
+.track{grid-column:1/-1;height:10px;border-radius:3px;background:var(--well);overflow:hidden;margin-bottom:6px}
+.track i{display:block;height:100%;width:0;background:var(--assist);transition:width .4s,background .4s}
+.note{font-size:12.5px!important;border-left:3px solid var(--brick);padding-left:9px;margin-top:10px!important}
+.field{display:grid;grid-template-columns:5.2em 1fr auto;gap:10px;align-items:center;font-size:14px;margin-bottom:8px}
+input[type=range]{width:100%;accent-color:var(--plan);min-height:28px}
+#again{position:absolute;left:calc(env(safe-area-inset-left,0px) + 14px);top:calc(env(safe-area-inset-top,0px) + 12px);display:none}
+.explore #again{display:inline-flex}
+#hint{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 66px);transform:translateX(-50%);
+  color:#fff;font-size:13px;font-weight:600;text-shadow:0 1px 6px rgba(12,24,46,.8);opacity:0;transition:opacity .6s;pointer-events:none;white-space:nowrap}
+.explore.fresh #hint{opacity:1}
+#nogl{display:none;position:fixed;inset:0;place-items:center;padding:24px;text-align:center;background:var(--surface);color:var(--ink);font-size:16px;line-height:1.5}
+.nogl #nogl{display:grid}
+@media (min-width:860px) and (min-height:520px){
+  #sheet{left:calc(env(safe-area-inset-left,0px) + 16px);right:auto;bottom:16px;width:430px;border-radius:18px;max-height:calc(100% - 32px);padding:14px 18px 18px;
+    box-shadow:0 5px 0 rgba(12,24,46,.25);transform:translateX(-120%)}
+  #again{top:calc(env(safe-area-inset-top,0px) + 16px);left:auto;right:calc(env(safe-area-inset-right,0px) + 16px)}
+  #hint{left:auto;right:24px;transform:none;top:calc(env(safe-area-inset-top,0px) + 72px)}
+  .steps .opt{font-size:12.5px}#body p,dl{font-size:15px}
+}
+@media (max-height:480px){#cap{font-size:30px}#chip{top:52px}#narr{display:none}#sheet{max-height:86vh}}
+@media (prefers-reduced-motion:reduce){#sheet,#start,.tile{transition:none}}
+</style>
+</head>
+<body class="start film">
+<canvas id="c" aria-label="A 3D toy-brick city: an animated film followed by a city you can explore"></canvas>
+<div id="scrim"></div>
+<div id="dim"></div>
+<div id="labels"></div>
+<div id="ui">
+  <div id="top">
+    <ol id="bar" aria-label="Scenes"></ol>
+    <div id="meta"><span id="sname"></span><span id="clock"></span></div>
+  </div>
+  <div id="chip" role="status"></div>
+  <div id="cap" aria-live="polite"></div>
+  <div id="narr"></div>
+  <div id="ctl">
+    <button class="tile" id="bSnd" aria-pressed="true">Sound</button>
+    <button class="tile sq" id="bPlay" aria-label="Pause"><svg viewBox="0 0 20 20"><path d="M5 3h4v14H5zM11 3h4v14h-4z"/></svg></button>
+    <button class="tile" id="bSkip">Explore the city</button>
+  </div>
+  <button class="tile" id="again">Watch the film</button>
+  <div id="hint">Drag to look around, pinch or scroll to zoom</div>
+  <section id="start">
+    <div>
+      <h1>Beyond the Bricks</h1>
+      <p>A three-minute film about building software with AI, followed by a city you can explore.</p>
+      <div class="row">
+        <button class="tile go" id="bStart">Play the film</button>
+        <button class="tile" id="bStartX">Explore the city</button>
+      </div>
+      <div id="load"></div>
+    </div>
+  </section>
+  <aside id="sheet" aria-label="Explore">
+    <div id="tabs" role="tablist"></div>
+    <div id="body"></div>
+  </aside>
+</div>
+<div id="nogl">This film needs WebGL, which this browser or device has switched off. Try opening it in a current version of Chrome, Safari, Edge or Firefox.</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
